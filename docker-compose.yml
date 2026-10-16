@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  reviewberry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reviewberry-app
+    ports:
+      - "8000:8000"
+    environment:
+      - RADEON_API_KEY=${RADEON_API_KEY:-rc-000000000000000000000000000000000000000000000000}
+      - RADEON_BASE_URL=${RADEON_BASE_URL:-https://developer.amd.com.cn/radeon/api/v1}
+      - AMD_MODEL=${AMD_MODEL:-DeepSeek-V4-Flash}
+      - USE_MOCK_FALLBACK=${USE_MOCK_FALLBACK:-true}
+      - PORT=8000
+      - HOST=0.0.0.0
+    restart: unless-stopped
