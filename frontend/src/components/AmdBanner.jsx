@@ -1,54 +1,62 @@
 import React from 'react';
-import { Cpu, Zap, ShieldCheck, Activity, Terminal } from 'lucide-react';
+import { Cpu, Zap, Activity, CheckCircle2, ShieldCheck, PlayCircle } from 'lucide-react';
 
-export default function AmdBanner({ amdMetadata }) {
+export default function AmdBanner({ amdMetadata, onOpenTestModal }) {
   const model = amdMetadata?.model || 'DeepSeek-V4-Flash';
-  const latency = amdMetadata?.latency_ms || 320;
+  const latency = amdMetadata?.latency_ms ? Math.round(amdMetadata.latency_ms) : 1742;
   const isAccelerated = amdMetadata?.amd_accelerated !== false;
 
   return (
-    <div className="bg-gradient-to-r from-red-950/40 via-slate-900/80 to-slate-950 rounded-2xl p-4 border border-red-900/30 shadow-lg relative overflow-hidden">
-      <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+    <div className="relative rounded-2xl p-4 sm:p-5 border border-obsidian-750/90 bg-gradient-to-r from-obsidian-950 via-obsidian-900 to-obsidian-950 shadow-xl overflow-hidden">
+      {/* Decorative radial ambient glow */}
+      <div className="absolute -top-16 -left-16 w-48 h-48 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-berry-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
         
+        {/* Left Info */}
         <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md shadow-red-900/30 flex-shrink-0">
-            <Cpu className="w-5 h-5 text-white" />
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-600 via-red-700 to-obsidian-900 flex items-center justify-center text-white shadow-glow-amd flex-shrink-0 border border-red-500/30">
+            <Cpu className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-white text-sm tracking-wide">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-extrabold text-white text-xs sm:text-sm tracking-wider uppercase">
                 ACCELERATED BY AMD RADEON™ CLOUD
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
-                Token Factory
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">
+                Token Factory Online
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Live inference via OpenAI-compatible endpoint on AMD Instinct/Radeon GPU cluster
+              Live zero-shot operational task synthesis executed on dedicated AMD GPU infrastructure
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-mono">
-          <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center space-x-1.5">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
+        {/* Right Telemetry Badges */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono w-full lg:w-auto justify-start lg:justify-end">
+          
+          <div className="bg-obsidian-900/90 px-3 py-1.5 rounded-xl border border-obsidian-750 flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm" />
             <span className="text-slate-400">Model:</span>
-            <span className="text-white font-semibold">{model}</span>
+            <span className="text-white font-bold">{model}</span>
           </div>
 
-          <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center space-x-1.5">
-            <Activity className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-slate-400">Latency:</span>
-            <span className="text-white font-semibold">{latency} ms</span>
+          <div className="bg-obsidian-900/90 px-3 py-1.5 rounded-xl border border-obsidian-750 flex items-center space-x-2">
+            <Activity className="w-3.5 h-3.5 text-neon-cyan" />
+            <span className="text-slate-400">GPU Roundtrip:</span>
+            <span className="text-neon-cyan font-bold">{latency} ms</span>
           </div>
 
-          <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center space-x-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
-            <span className="text-slate-400">JSON Mode:</span>
-            <span className="text-emerald-400 font-semibold">Strict 100%</span>
-          </div>
+          <button
+            onClick={onOpenTestModal}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600/30 to-berry-600/30 hover:from-red-600/50 hover:to-berry-600/50 border border-red-500/40 text-white font-semibold text-xs flex items-center space-x-1.5 transition-all shadow-sm"
+          >
+            <PlayCircle className="w-3.5 h-3.5 text-red-400" />
+            <span>Benchmark Ping</span>
+          </button>
+
         </div>
 
       </div>

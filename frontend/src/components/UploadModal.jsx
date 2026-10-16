@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Upload, FileText, CheckCircle } from 'lucide-react';
+import { X, Upload, FileText } from 'lucide-react';
 
 export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
   if (!isOpen) return null;
@@ -99,14 +99,14 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="bg-obsidian-900 border border-obsidian-750 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative shadow-glow-berry">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-berry-600/20 text-berry-400 flex items-center justify-center">
-              <Upload className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-4 border-b border-obsidian-750">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-berry-600/20 text-berry-400 border border-berry-500/30 flex items-center justify-center flex-shrink-0">
+              <Upload className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-white text-base">Analyze Custom Customer Reviews</h3>
@@ -118,30 +118,30 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
 
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-obsidian-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-2 my-4 border-b border-slate-800 pb-2 text-xs">
+        <div className="flex space-x-2 my-4 border-b border-obsidian-800 pb-2 text-xs">
           <button
             onClick={() => setActiveTab('csv')}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
               activeTab === 'csv'
-                ? 'bg-berry-600 text-white'
-                : 'text-slate-400 hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                : 'text-slate-400 hover:bg-obsidian-800'
             }`}
           >
             Upload CSV File
           </button>
           <button
             onClick={() => setActiveTab('paste')}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
               activeTab === 'paste'
-                ? 'bg-berry-600 text-white'
-                : 'text-slate-400 hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                : 'text-slate-400 hover:bg-obsidian-800'
             }`}
           >
             Paste Text Reviews
@@ -149,7 +149,7 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+          <div className="mb-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
             {error}
           </div>
         )}
@@ -162,7 +162,7 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
               type="text"
               value={businessName}
               onChange={e => setBusinessName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs focus:ring-1 focus:ring-berry-500"
+              className="w-full bg-obsidian-950 border border-obsidian-750 rounded-xl px-3 py-2 text-white text-xs focus:ring-1 focus:ring-berry-500"
             />
           </div>
           <div>
@@ -171,14 +171,14 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
               type="text"
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs focus:ring-1 focus:ring-berry-500"
+              className="w-full bg-obsidian-950 border border-obsidian-750 rounded-xl px-3 py-2 text-white text-xs focus:ring-1 focus:ring-berry-500"
             />
           </div>
         </div>
 
         {activeTab === 'csv' ? (
           <form onSubmit={handleCsvSubmit} className="space-y-4 text-xs">
-            <div className="border-2 border-dashed border-slate-800 rounded-xl p-6 text-center hover:border-slate-700 transition-colors">
+            <div className="border-2 border-dashed border-obsidian-750 rounded-2xl p-6 text-center hover:border-berry-500/50 transition-colors bg-obsidian-950/60">
               <input
                 type="file"
                 accept=".csv"
@@ -200,7 +200,7 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
             <button
               type="submit"
               disabled={loading || !file}
-              className="w-full py-2.5 rounded-xl bg-berry-600 hover:bg-berry-500 font-semibold text-white transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 shadow-md shadow-berry-950/40"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-berry-600 to-berry-500 hover:opacity-95 font-bold text-white transition-all flex items-center justify-center space-x-2 disabled:opacity-50 shadow-glow-berry"
             >
               <span>{loading ? 'Processing via AMD Radeon Cloud...' : 'Run Reviewberry Analysis'}</span>
             </button>
@@ -215,14 +215,14 @@ export default function UploadModal({ isOpen, onClose, onAnalysisComplete }) {
                 rows={6}
                 value={pasteText}
                 onChange={e => setPasteText(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white text-xs font-sans leading-relaxed focus:ring-1 focus:ring-berry-500"
+                className="w-full bg-obsidian-950 border border-obsidian-750 rounded-xl p-3 text-white text-xs font-sans leading-relaxed focus:ring-1 focus:ring-berry-500"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-berry-600 hover:bg-berry-500 font-semibold text-white transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 shadow-md shadow-berry-950/40"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-berry-600 to-berry-500 hover:opacity-95 font-bold text-white transition-all flex items-center justify-center space-x-2 disabled:opacity-50 shadow-glow-berry"
             >
               <span>{loading ? 'Processing via AMD Radeon Cloud...' : 'Cluster & Create Tasks'}</span>
             </button>

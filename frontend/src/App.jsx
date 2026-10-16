@@ -8,6 +8,8 @@ import TaskKanban from './components/TaskKanban';
 import CustomerReplyModal from './components/CustomerReplyModal';
 import StaffMemoModal from './components/StaffMemoModal';
 import UploadModal from './components/UploadModal';
+import TestConnectionModal from './components/TestConnectionModal';
+import { Users, Cpu, ShieldCheck, Github, ExternalLink, Heart } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'kanban'
@@ -18,10 +20,10 @@ export default function App() {
 
   // Modals
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [testModalOpen, setTestModalOpen] = useState(false);
   const [replyModalState, setReplyModalState] = useState({ open: false, cluster: null, quoteItem: null });
   const [memoModalState, setMemoModalState] = useState({ open: false, cluster: null, task: null });
 
-  // Initial fetch: AMD status and default Trattoria demo
   useEffect(() => {
     fetchAmdStatus();
     loadDemo('trattoria');
@@ -100,7 +102,6 @@ export default function App() {
   };
 
   const handleOpenStaffMemo = (cluster) => {
-    // Find task for cluster
     const matchingTask = analysisData?.tasks?.find(t => t.cluster_id === cluster.id) || analysisData?.tasks?.[0];
     setMemoModalState({
       open: true,
@@ -122,19 +123,35 @@ export default function App() {
     setActiveTab('kanban');
   };
 
+  const handleModelChange = async (newModel) => {
+    try {
+      await fetch('/api/amd/set-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: newModel })
+      });
+      fetchAmdStatus();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col text-slate-100">
+    <div className="min-h-screen bg-obsidian-950 flex flex-col text-slate-100">
       <Navbar
         amdStatus={amdStatus}
-        onRefresh={fetchAmdStatus}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onOpenTestModal={() => setTestModalOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
         {/* AMD Cloud Accelerator Telemetry Banner */}
-        <AmdBanner amdMetadata={analysisData?.amd_metadata} />
+        <AmdBanner
+          amdMetadata={analysisData?.amd_metadata}
+          onOpenTestModal={() => setTestModalOpen(true)}
+        />
 
         {/* 1-Click Interactive Scenarios Selector */}
         <DemoSelector
@@ -145,11 +162,21 @@ export default function App() {
         />
 
         {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center space-y-3">
-            <div className="w-10 h-10 border-4 border-berry-500/20 border-t-berry-500 rounded-full animate-spin" />
-            <p className="text-sm text-slate-400 font-medium animate-pulse">
-              Clustering reviews & synthesizing operational tasks on AMD Radeon Cloud...
-            </p>
+          <div className="py-24 flex flex-col items-center justify-center space-y-4">
+            <div className="relative">
+              <div className="w-14 h-14 border-4 border-berry-500/20 border-t-berry-500 rounded-full animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Cpu className="w-5 h-5 text-berry-400" />
+              </div>
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-base font-bold text-white tracking-wide">
+                Clustering Customer Reviews on AMD Radeon™ Cloud...
+              </p>
+              <p className="text-xs text-slate-400 font-mono">
+                Executing zero-shot semantic grouping & operational task assignment
+              </p>
+            </div>
           </div>
         ) : (
           <>
@@ -157,33 +184,33 @@ export default function App() {
             {analysisData && (
               <div className="space-y-6">
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-800/80 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-obsidian-750/80 gap-3">
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                       {analysisData.business_name}
                     </h2>
-                    <span className="text-xs text-slate-400">
-                      {analysisData.business_category} • Operational Feedback Triage
+                    <span className="text-xs text-slate-400 font-medium">
+                      {analysisData.business_category} • Operational Feedback Triage & Action Workflow
                     </span>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setActiveTab('dashboard')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         activeTab === 'dashboard'
-                          ? 'bg-berry-600 text-white shadow-sm'
-                          : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                          ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                          : 'bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750'
                       }`}
                     >
                       Issue Clusters ({analysisData.clusters?.length})
                     </button>
                     <button
                       onClick={() => setActiveTab('kanban')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         activeTab === 'kanban'
-                          ? 'bg-berry-600 text-white shadow-sm'
-                          : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                          ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                          : 'bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750'
                       }`}
                     >
                       Staff Action Board ({analysisData.tasks?.length})
@@ -216,21 +243,67 @@ export default function App() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-6 mt-12 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="font-bold text-slate-300">Reviewberry</span>
-            <span>—</span>
-            <span>Customer complaints become business tasks</span>
+      {/* Enhanced Footer with Team Voyagers Attribution */}
+      <footer className="border-t border-obsidian-800/80 bg-obsidian-950/90 py-8 mt-16 text-xs text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          
+          {/* Team Voyagers Spotlight Card */}
+          <div className="bg-gradient-to-r from-obsidian-900 via-obsidian-850 to-obsidian-900 border border-obsidian-750/90 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon-purple/20 via-berry-600/20 to-obsidian-900 border border-berry-500/30 flex items-center justify-center text-berry-400 shadow-glow-berry flex-shrink-0">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-extrabold text-white tracking-wide">
+                    Built by Team Voyagers
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neon-purple/20 text-neon-purple border border-neon-purple/30">
+                    On-Site Hackathon Entry
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Designed & developed for <strong className="text-white">AMD Developer Hackathon: ACT III</strong> in Rome, Italy.
+                </p>
+              </div>
+            </div>
+
+            {/* Team Members List */}
+            <div className="flex flex-wrap items-center gap-2 font-medium">
+              <div className="bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs">
+                <span className="w-2 h-2 rounded-full bg-berry-500" />
+                <span>Nguyen Xuan Hau</span>
+              </div>
+              <div className="bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs">
+                <span className="w-2 h-2 rounded-full bg-neon-cyan" />
+                <span>Senuke Weragama</span>
+              </div>
+            </div>
           </div>
-          <div className="text-[11px] text-slate-500">
-            AMD ACT III Hackathon • Track 3: Reinvent Commerce • Rome, Italy
+
+          {/* Bottom Copyright & Track Meta */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-[11px] text-slate-500">
+            <div className="flex items-center space-x-2">
+              <span className="font-bold text-slate-300">Reviewberry</span>
+              <span>—</span>
+              <span>Customer complaints become business tasks</span>
+            </div>
+            <div>
+              Track 3 by Vibe Generation: Reinvent Commerce • Powered by AMD Radeon™ Cloud
+            </div>
           </div>
+
         </div>
       </footer>
 
       {/* Modals */}
+      <TestConnectionModal
+        isOpen={testModalOpen}
+        onClose={() => setTestModalOpen(false)}
+        currentModel={amdStatus?.model || 'DeepSeek-V4-Flash'}
+        onModelChange={handleModelChange}
+      />
+
       <CustomerReplyModal
         isOpen={replyModalState.open}
         onClose={() => setReplyModalState({ open: false, cluster: null, quoteItem: null })}

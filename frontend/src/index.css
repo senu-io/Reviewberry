@@ -4,38 +4,52 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen selection:bg-berry-600 selection:text-white;
+    @apply bg-obsidian-950 text-slate-100 min-h-screen selection:bg-berry-500 selection:text-white font-sans antialiased;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 30, 112, 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 80%, rgba(155, 93, 229, 0.08), transparent);
+    background-attachment: fixed;
   }
 }
 
-/* Custom glassmorphism card */
+/* Glassmorphism panel with neon edge accent */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 13, 28, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.glass-panel-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.glass-panel-interactive {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.glass-panel-hover:hover {
-  border-color: rgba(225, 29, 72, 0.3);
+
+.glass-panel-interactive:hover {
+  background: rgba(25, 19, 37, 0.85);
+  border-color: rgba(255, 30, 112, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px -10px rgba(225, 29, 72, 0.15);
+  box-shadow: 0 12px 28px -8px rgba(255, 30, 112, 0.15);
 }
 
-/* Custom scrollbar */
+/* Cyber pill */
+.cyber-pill {
+  background: rgba(255, 30, 112, 0.1);
+  border: 1px solid rgba(255, 30, 112, 0.25);
+  color: #ff629c;
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #09070D;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #2B223F;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(225, 29, 72, 0.5);
+  background: #ff1e70;
 }

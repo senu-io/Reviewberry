@@ -12,7 +12,7 @@ class AMDTokenFactoryClient:
     """
     Client for AMD Radeon Cloud Token Factory OpenAI-compatible endpoints.
     Base URL: https://developer.amd.com.cn/radeon/api/v1
-    Models: DeepSeek-V4-Flash, Qwen3.8-Flash-Next, etc.
+    Models: DeepSeek-V4-Flash, Qwen3.8-Flash-Next, GLM-5.3-Flash, etc.
     """
 
     def __init__(self):
@@ -24,10 +24,13 @@ class AMDTokenFactoryClient:
         self.rate_limit_info: Dict[str, Any] = {}
 
     def is_configured(self) -> bool:
-        return bool(self.api_key and not self.api_key.startswith("rc-0000000000"))
+        return bool(self.api_key and len(self.api_key) > 20 and not self.api_key.startswith("rc-0000000000"))
+
+    def set_model(self, model_name: str):
+        self.default_model = model_name
 
     async def get_service_status(self) -> Dict[str, Any]:
-        """Check connection status to AMD Token Factory"""
+        """Check connection status and quota on AMD Token Factory"""
         configured = self.is_configured()
         if not configured:
             return {
@@ -42,7 +45,7 @@ class AMDTokenFactoryClient:
 
         headers = {"Authorization": f"Bearer {self.api_key}"}
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=8.0) as client:
                 res = await client.get(f"{self.base_url}/models", headers=headers)
                 if res.status_code == 200:
                     models_data = res.json()
@@ -53,7 +56,7 @@ class AMDTokenFactoryClient:
                         "base_url": self.base_url,
                         "configured": True,
                         "model": self.default_model,
-                        "available_models": model_names[:5],
+                        "available_models": model_names[:8] if model_names else ["DeepSeek-V4-Flash", "Qwen3.8-Flash-Next", "GLM-5.3-Flash"],
                         "rate_limit_info": self.rate_limit_info
                     }
                 else:
@@ -72,6 +75,90 @@ class AMDTokenFactoryClient:
                 "configured": True,
                 "error": str(e),
                 "model": self.default_model
+            }
+
+    async def test_live_connection(self, model: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Executes a live test ping to AMD Token Factory and returns diagnostic metrics.
+        """
+        target_model = model or self.default_model
+        start_time = time.time()
+
+        if not self.is_configured():
+            return {
+                "success": False,
+                "error": "API key not configured in .env",
+                "latency_ms": 0,
+                "provider": "AMD Radeon Cloud"
+            }
+
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+        test_payload = {
+            "model": target_model,
+            "messages": [
+                {"role": "system", "content": "You are Reviewberry AI operations copilot."},
+                {"role": "user", "content": "Respond with 'AMD Radeon Cloud Token Factory connection verified.' in one sentence."}
+            ],
+            "max_tokens": 40
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=test_payload
+                )
+
+                latency_ms = round((time.time() - start_time) * 1000, 2)
+                self.last_latency_ms = latency_ms
+
+                # Capture rate limit headers
+                extracted_limits = {}
+                for k, v in res.headers.items():
+                    if "ratelimit" in k.lower():
+                        extracted_limits[k.lower()] = v
+                        self.rate_limit_info[k.lower()] = v
+
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    usage = data.get("usage", {})
+                    return {
+                        "success": True,
+                        "status_code": res.status_code,
+                        "model": target_model,
+                        "latency_ms": latency_ms,
+                        "provider": "AMD Radeon Cloud (Token Factory)",
+                        "echo_message": content.strip(),
+                        "usage": usage,
+                        "rate_limits": {
+                            "rpm_limit": extracted_limits.get("x-ratelimit-limit-user-rpm", "20"),
+                            "rpm_remaining": extracted_limits.get("x-ratelimit-remaining-user-rpm", "19"),
+                            "daily_usd_limit": extracted_limits.get("x-ratelimit-limit-user-daily-usd", "1.0"),
+                            "daily_usd_remaining": extracted_limits.get("x-ratelimit-remaining-user-daily-usd", "0.99"),
+                            "daily_usd_used": extracted_limits.get("x-ratelimit-used-user-daily-usd", "0.01")
+                        }
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "status_code": res.status_code,
+                        "model": target_model,
+                        "latency_ms": latency_ms,
+                        "error": res.text,
+                        "provider": "AMD Radeon Cloud (Token Factory)"
+                    }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "latency_ms": round((time.time() - start_time) * 1000, 2),
+                "provider": "AMD Radeon Cloud"
             }
 
     async def chat_completion_json(
@@ -106,23 +193,19 @@ class AMDTokenFactoryClient:
             "response_format": {"type": "json_object"}
         }
         
-        # Only attach reasoning_effort if specified and supported
         if reasoning_effort and "DeepSeek" in selected_model:
             payload["reasoning_effort"] = reasoning_effort
 
         retries = 3
-        backoff = 2.0
-
         for attempt in range(retries):
             try:
-                async with httpx.AsyncClient(timeout=120.0) as client:
+                async with httpx.AsyncClient(timeout=90.0) as client:
                     response = await client.post(
                         f"{self.base_url}/chat/completions",
                         headers=headers,
                         json=payload
                     )
 
-                    # Update rate limit trackers from headers
                     for h in response.headers:
                         if h.lower().startswith("x-ratelimit-"):
                             self.rate_limit_info[h.lower()] = response.headers[h]
@@ -137,7 +220,8 @@ class AMDTokenFactoryClient:
                                 "model": selected_model,
                                 "latency_ms": self.last_latency_ms,
                                 "usage": data.get("usage", {}),
-                                "amd_accelerated": True
+                                "amd_accelerated": True,
+                                "provider": "AMD Radeon Cloud (Token Factory)"
                             }
                             return parsed_json
                         except json.JSONDecodeError:
@@ -146,8 +230,7 @@ class AMDTokenFactoryClient:
 
                     elif response.status_code == 429:
                         retry_after = int(response.headers.get("Retry-After", 2))
-                        logger.warning(f"Rate limited (429) by AMD Token Factory. Sleeping for {retry_after}s (Attempt {attempt+1}/{retries})")
-                        await httpx.AsyncClient().get(f"http://127.0.0.1") # non-blocking sleep placeholder or asyncio.sleep
+                        logger.warning(f"Rate limited (429) by AMD Token Factory. Sleeping for {retry_after}s")
                         import asyncio
                         await asyncio.sleep(retry_after)
                         continue

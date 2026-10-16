@@ -50,6 +50,19 @@ async def amd_status():
     status = await amd_client.get_service_status()
     return status
 
+@app.post("/api/amd/test-connection")
+async def test_amd_connection(payload: Dict[str, Any] = None):
+    """Executes a real-time test inference on AMD Token Factory and returns latency & telemetry"""
+    model = payload.get("model") if payload else None
+    return await amd_client.test_live_connection(model=model)
+
+@app.post("/api/amd/set-model")
+async def set_amd_model(payload: Dict[str, str]):
+    """Changes the active AMD model at runtime"""
+    model = payload.get("model", "DeepSeek-V4-Flash")
+    amd_client.set_model(model)
+    return {"success": True, "active_model": model}
+
 @app.get("/api/demos")
 async def get_demos():
     """Lists available pre-loaded realistic industry datasets"""
