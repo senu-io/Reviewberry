@@ -5,7 +5,7 @@
 > **Team:** Voyagers  
 > **Team Members:** Nguyen Xuan Hau & Senuke Weragama  
 > **Powered by:** AMD Token Factory (AMD Radeon™ Cloud AI Endpoints)  
-> **Repository:** [https://github.com/your-team/reviewberry](https://github.com/your-team/reviewberry)
+> **Repository:** [https://github.com/senu-io/reviewberry](https://github.com/senu-io/reviewberry)
 
 ---
 
