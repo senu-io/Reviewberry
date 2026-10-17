@@ -17,14 +17,17 @@ class AMDTokenFactoryClient:
 
     def __init__(self):
         self.base_url = RADEON_BASE_URL.rstrip("/")
-        self.api_key = RADEON_API_KEY.strip()
+        raw_key = RADEON_API_KEY.strip()
+        if raw_key.lower().startswith("rc-") and raw_key.startswith("Rc-"):
+            raw_key = "rc-" + raw_key[3:]
+        self.api_key = raw_key
         self.default_model = AMD_MODEL
         self.mock_mode = USE_MOCK_FALLBACK
         self.last_latency_ms: float = 0.0
         self.rate_limit_info: Dict[str, Any] = {}
 
     def is_configured(self) -> bool:
-        return bool(self.api_key and len(self.api_key) > 20 and not self.api_key.startswith("rc-0000000000"))
+        return bool(self.api_key and len(self.api_key) > 20 and not self.api_key.lower().startswith("rc-0000000000"))
 
     def set_model(self, model_name: str):
         self.default_model = model_name
@@ -32,12 +35,14 @@ class AMDTokenFactoryClient:
     async def get_service_status(self) -> Dict[str, Any]:
         """Check connection status and quota on AMD Token Factory"""
         configured = self.is_configured()
+        masked_key = f"{self.api_key[:7]}...{self.api_key[-4:]}" if len(self.api_key) > 10 else "Configured"
         if not configured:
             return {
                 "status": "simulation_ready",
                 "provider": "AMD Radeon Cloud (Token Factory)",
                 "base_url": self.base_url,
                 "configured": False,
+                "masked_key": masked_key,
                 "model": self.default_model,
                 "note": "API key pending redemption or mock mode active. Fully functional for demo evaluation.",
                 "rate_limit_info": self.rate_limit_info
@@ -55,6 +60,7 @@ class AMDTokenFactoryClient:
                         "provider": "AMD Radeon Cloud (Token Factory)",
                         "base_url": self.base_url,
                         "configured": True,
+                        "masked_key": masked_key,
                         "model": self.default_model,
                         "available_models": model_names[:8] if model_names else ["DeepSeek-V4-Flash", "Qwen3.8-Flash-Next", "GLM-5.3-Flash"],
                         "rate_limit_info": self.rate_limit_info
@@ -133,6 +139,7 @@ class AMDTokenFactoryClient:
                         "status_code": res.status_code,
                         "model": target_model,
                         "latency_ms": latency_ms,
+                        "masked_key": f"{self.api_key[:7]}...{self.api_key[-4:]}" if len(self.api_key) > 10 else "Configured",
                         "provider": "AMD Radeon Cloud (Token Factory)",
                         "echo_message": content.strip(),
                         "usage": usage,

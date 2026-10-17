@@ -206,7 +206,7 @@ export default function TestConnectionModal({ isOpen, onClose, currentModel, onM
         {/* Footer */}
         <div className="pt-3 border-t border-obsidian-750 flex items-center justify-between text-xs text-slate-400">
           <span className="font-mono text-[11px]">
-            API Key: <strong className="text-slate-300">rc-865f...03c2</strong>
+            API Key: <strong className="text-slate-300">{testResult?.masked_key || "rc-4a4b...0a91"}</strong>
           </span>
           <button
             onClick={onClose}
