@@ -5,14 +5,20 @@ import DemoSelector from './components/DemoSelector';
 import OverviewMetrics from './components/OverviewMetrics';
 import ClusterList from './components/ClusterList';
 import TaskKanban from './components/TaskKanban';
+import ActionStudio from './components/ActionStudio';
+import AmdDiagnostics from './components/AmdDiagnostics';
+import TeamSection from './components/TeamSection';
 import CustomerReplyModal from './components/CustomerReplyModal';
 import StaffMemoModal from './components/StaffMemoModal';
 import UploadModal from './components/UploadModal';
 import TestConnectionModal from './components/TestConnectionModal';
-import { Users, Cpu, ShieldCheck, Github, ExternalLink, Heart } from 'lucide-react';
+import { Users, Cpu, ShieldCheck, Github, ExternalLink, ArrowRight, Sparkles, CheckSquare, Layers, Activity } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'kanban'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('reviewberry_theme') || 'dark';
+  });
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'kanban', 'studio', 'telemetry', 'team'
   const [activeDemoId, setActiveDemoId] = useState('trattoria');
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -23,6 +29,22 @@ export default function App() {
   const [testModalOpen, setTestModalOpen] = useState(false);
   const [replyModalState, setReplyModalState] = useState({ open: false, cluster: null, quoteItem: null });
   const [memoModalState, setMemoModalState] = useState({ open: false, cluster: null, task: null });
+
+  // Sync theme changes with DOM and localStorage
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('reviewberry_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     fetchAmdStatus();
@@ -137,31 +159,43 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian-950 flex flex-col text-slate-100">
+    <div className={`min-h-screen flex flex-col transition-colors duration-250 ${
+      theme === 'light' ? 'bg-slate-50 text-slate-900 light' : 'bg-obsidian-950 text-slate-100 dark'
+    }`}>
+      {/* Top Navigation Bar with Menu & Theme Toggle */}
       <Navbar
         amdStatus={amdStatus}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenTestModal={() => setTestModalOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        clusterCount={analysisData?.clusters?.length || 0}
+        taskCount={analysisData?.tasks?.length || 0}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        {/* AMD Cloud Accelerator Telemetry Banner */}
-        <AmdBanner
-          amdMetadata={analysisData?.amd_metadata}
-          onOpenTestModal={() => setTestModalOpen(true)}
-        />
+        {/* AMD Cloud Accelerator Telemetry Banner (shown on dashboard & kanban) */}
+        {(activeTab === 'dashboard' || activeTab === 'kanban') && (
+          <AmdBanner
+            amdMetadata={analysisData?.amd_metadata}
+            onOpenTestModal={() => setTestModalOpen(true)}
+          />
+        )}
 
-        {/* 1-Click Interactive Scenarios Selector */}
-        <DemoSelector
-          activeDemoId={activeDemoId}
-          onSelectDemo={loadDemo}
-          onOpenUpload={() => setUploadModalOpen(true)}
-          loading={loading}
-        />
+        {/* 1-Click Interactive Scenarios Selector (shown on dashboard & kanban) */}
+        {(activeTab === 'dashboard' || activeTab === 'kanban') && (
+          <DemoSelector
+            activeDemoId={activeDemoId}
+            onSelectDemo={loadDemo}
+            onOpenUpload={() => setUploadModalOpen(true)}
+            loading={loading}
+          />
+        )}
 
-        {loading ? (
+        {/* Loading Spinner */}
+        {loading && (activeTab === 'dashboard' || activeTab === 'kanban') ? (
           <div className="py-24 flex flex-col items-center justify-center space-y-4">
             <div className="relative">
               <div className="w-14 h-14 border-4 border-berry-500/20 border-t-berry-500 rounded-full animate-spin" />
@@ -171,7 +205,7 @@ export default function App() {
             </div>
             <div className="text-center space-y-1">
               <p className="text-base font-bold text-white tracking-wide">
-                Clustering Customer Reviews on AMD Radeon™ Cloud...
+                Clustering Customer Reviews on AMD Radeon Cloud...
               </p>
               <p className="text-xs text-slate-400 font-mono">
                 Executing zero-shot semantic grouping & operational task assignment
@@ -180,8 +214,8 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* Business Header & Overview Metrics */}
-            {analysisData && (
+            {/* View 1: Operational Insights (Dashboard) */}
+            {activeTab === 'dashboard' && analysisData && (
               <div className="space-y-6">
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-obsidian-750/80 gap-3">
@@ -197,21 +231,61 @@ export default function App() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setActiveTab('dashboard')}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        activeTab === 'dashboard'
-                          ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
-                          : 'bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750'
-                      }`}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry"
                     >
                       Issue Clusters ({analysisData.clusters?.length})
                     </button>
                     <button
                       onClick={() => setActiveTab('kanban')}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        activeTab === 'kanban'
-                          ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
-                          : 'bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750'
-                      }`}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750 transition-all"
+                    >
+                      Staff Action Board ({analysisData.tasks?.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('studio')}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750 transition-all hidden sm:inline-flex items-center space-x-1"
+                    >
+                      <Sparkles className="w-3 h-3 text-berry-400" />
+                      <span>Resolution Studio</span>
+                    </button>
+                  </div>
+                </div>
+
+                <OverviewMetrics data={analysisData} />
+
+                <ClusterList
+                  clusters={analysisData.clusters}
+                  onOpenCustomerReply={handleOpenCustomerReply}
+                  onOpenStaffMemo={handleOpenStaffMemo}
+                  onSelectTaskForCluster={handleJumpToTask}
+                />
+
+              </div>
+            )}
+
+            {/* View 2: Staff Action Board (Kanban) */}
+            {activeTab === 'kanban' && analysisData && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-obsidian-750/80 gap-3">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                      Staff Operational Kanban Board
+                    </h2>
+                    <span className="text-xs text-slate-400 font-medium">
+                      {analysisData.business_name} • Assignable action directives and SOP checklists
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setActiveTab('dashboard')}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750 transition-all"
+                    >
+                      Issue Clusters ({analysisData.clusters?.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('kanban')}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry"
                     >
                       Staff Action Board ({analysisData.tasks?.length})
                     </button>
@@ -220,30 +294,43 @@ export default function App() {
 
                 <OverviewMetrics data={analysisData} />
 
-                {/* Main Views */}
-                {activeTab === 'dashboard' ? (
-                  <ClusterList
-                    clusters={analysisData.clusters}
-                    onOpenCustomerReply={handleOpenCustomerReply}
-                    onOpenStaffMemo={handleOpenStaffMemo}
-                    onSelectTaskForCluster={handleJumpToTask}
-                  />
-                ) : (
-                  <TaskKanban
-                    tasks={analysisData.tasks}
-                    onUpdateTaskStatus={handleUpdateTaskStatus}
-                    onOpenStaffMemoForTask={handleOpenStaffMemoForTask}
-                  />
-                )}
-
+                <TaskKanban
+                  tasks={analysisData.tasks}
+                  onUpdateTaskStatus={handleUpdateTaskStatus}
+                  onOpenStaffMemoForTask={handleOpenStaffMemoForTask}
+                />
               </div>
+            )}
+
+            {/* View 3: Resolution Studio */}
+            {activeTab === 'studio' && (
+              <ActionStudio
+                analysisData={analysisData}
+                onOpenCustomerReply={handleOpenCustomerReply}
+                onOpenStaffMemo={handleOpenStaffMemo}
+              />
+            )}
+
+            {/* View 4: AMD Telemetry & Diagnostics */}
+            {activeTab === 'telemetry' && (
+              <AmdDiagnostics
+                amdStatus={amdStatus}
+                amdMetadata={analysisData?.amd_metadata}
+                onOpenTestModal={() => setTestModalOpen(true)}
+                onModelChange={handleModelChange}
+              />
+            )}
+
+            {/* View 5: Dedicated Team Voyagers Profile */}
+            {activeTab === 'team' && (
+              <TeamSection />
             )}
           </>
         )}
 
       </main>
 
-      {/* Enhanced Footer with Team Voyagers Attribution */}
+      {/* Persistent Team Voyagers Footer Card */}
       <footer className="border-t border-obsidian-800/80 bg-obsidian-950/90 py-8 mt-16 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           
@@ -263,21 +350,36 @@ export default function App() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-0.5">
-                  Designed & developed for <strong className="text-white">AMD Developer Hackathon: ACT III</strong> in Rome, Italy.
+                  Designed and developed for <strong className="text-white">AMD Developer Hackathon: ACT III</strong> in Rome, Italy.
                 </p>
               </div>
             </div>
 
-            {/* Team Members List */}
+            {/* Team Members List and Profile Link */}
             <div className="flex flex-wrap items-center gap-2 font-medium">
-              <div className="bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs">
+              <a
+                href="mailto:nguyenxuanhau890@gmail.com"
+                className="bg-obsidian-950 hover:bg-obsidian-800 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs transition-colors"
+                title="Team Leader: Nguyen Xuan Hau"
+              >
                 <span className="w-2 h-2 rounded-full bg-berry-500" />
-                <span>Nguyen Xuan Hau</span>
-              </div>
-              <div className="bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs">
+                <span>Nguyen Xuan Hau (Team Leader)</span>
+              </a>
+              <a
+                href="mailto:senukeweragama2004@gmail.com"
+                className="bg-obsidian-950 hover:bg-obsidian-800 px-3 py-1.5 rounded-xl border border-obsidian-750 text-slate-200 flex items-center space-x-1.5 text-xs transition-colors"
+                title="Full-Stack Developer: Senuke Weragama"
+              >
                 <span className="w-2 h-2 rounded-full bg-neon-cyan" />
                 <span>Senuke Weragama</span>
-              </div>
+              </a>
+              <button
+                onClick={() => setActiveTab('team')}
+                className="px-3 py-1.5 rounded-xl bg-berry-500/15 hover:bg-berry-500/25 border border-berry-500/30 text-berry-400 text-xs font-bold transition-all flex items-center space-x-1"
+              >
+                <span>View Full Profile</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
             </div>
           </div>
 
@@ -285,11 +387,11 @@ export default function App() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-[11px] text-slate-500">
             <div className="flex items-center space-x-2">
               <span className="font-bold text-slate-300">Reviewberry</span>
-              <span>—</span>
+              <span className="text-slate-600">:</span>
               <span>Customer complaints become business tasks</span>
             </div>
             <div>
-              Track 3 by Vibe Generation: Reinvent Commerce • Powered by AMD Radeon™ Cloud
+              Track 3 by Vibe Generation: Reinvent Commerce • Powered by AMD Radeon Cloud
             </div>
           </div>
 

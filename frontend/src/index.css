@@ -53,3 +53,115 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #ff1e70;
 }
+
+/* Light Mode Overrides */
+html.light body,
+.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 30, 112, 0.07), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(155, 93, 229, 0.04), transparent) !important;
+}
+
+html.light .bg-obsidian-950,
+.light .bg-obsidian-950 {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-obsidian-900,
+.light .bg-obsidian-900 {
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+}
+
+html.light .bg-obsidian-850,
+.light .bg-obsidian-850 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-obsidian-800,
+.light .bg-obsidian-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-obsidian-750,
+.light .bg-obsidian-750 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .border-obsidian-750,
+html.light .border-obsidian-750\/70,
+html.light .border-obsidian-750\/80,
+html.light .border-obsidian-750\/90,
+html.light .border-obsidian-800,
+html.light .border-obsidian-800\/80,
+html.light .border-obsidian-700,
+html.light .border-obsidian-700\/80,
+.light .border-obsidian-750,
+.light .border-obsidian-750\/70,
+.light .border-obsidian-750\/80,
+.light .border-obsidian-750\/90,
+.light .border-obsidian-800,
+.light .border-obsidian-800\/80,
+.light .border-obsidian-700,
+.light .border-obsidian-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-white,
+.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-100,
+.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200,
+.light .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-300,
+.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400,
+.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500,
+.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.light .glass-panel,
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .glass-panel-interactive:hover,
+.light .glass-panel-interactive:hover {
+  background: #ffffff !important;
+  border-color: rgba(255, 30, 112, 0.4) !important;
+  box-shadow: 0 12px 28px -8px rgba(255, 30, 112, 0.12) !important;
+}
+
+html.light ::-webkit-scrollbar-track,
+.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html.light ::-webkit-scrollbar-thumb,
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+html.light ::-webkit-scrollbar-thumb:hover,
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #ff1e70;
+}
