@@ -1,7 +1,7 @@
 import React from 'react';
-import { Cpu, Layers, CheckSquare, Zap, Users, Sparkles } from 'lucide-react';
+import { Cpu, Users } from 'lucide-react';
 
-export default function Navbar({ amdStatus, activeTab, setActiveTab, onOpenTestModal }) {
+export default function Navbar({ amdStatus, onOpenTestModal, onBrandClick }) {
   const modelName = amdStatus?.model || 'DeepSeek-V4-Flash';
 
   return (
@@ -12,7 +12,7 @@ export default function Navbar({ amdStatus, activeTab, setActiveTab, onOpenTestM
         <div className="flex items-center space-x-3.5">
           <div
             className="flex items-center space-x-2.5 cursor-pointer group"
-            onClick={() => setActiveTab('dashboard')}
+            onClick={onBrandClick}
           >
             <div className="relative">
               <img
@@ -46,63 +46,12 @@ export default function Navbar({ amdStatus, activeTab, setActiveTab, onOpenTestM
           </div>
         </div>
 
-        {/* Center: Navigation View Switcher */}
-        <div className="flex items-center space-x-1 bg-obsidian-900/90 p-1 rounded-xl border border-obsidian-750/90 shadow-inner">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
-              activeTab === 'dashboard'
-                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/60'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Operational Insights</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('kanban')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
-              activeTab === 'kanban'
-                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/60'
-            }`}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>Staff Action Board</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('studio')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
-              activeTab === 'studio'
-                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/60'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Resolution Studio</span>
-          </button>
-        </div>
-
-        {/* Right: AMD Status & Live Connection Tester */}
+        {/* Right: AMD Status Badge */}
         <div className="flex items-center space-x-2.5">
-          
-          {/* Test LLM Connection Button */}
-          <button
-            onClick={onOpenTestModal}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-obsidian-900 hover:bg-obsidian-800 text-slate-200 border border-obsidian-700/80 hover:border-berry-500/50 transition-all shadow-sm"
-            title="Test real-time connection to AMD Token Factory"
-          >
-            <Zap className="w-3.5 h-3.5 text-berry-400 animate-pulse" />
-            <span className="hidden sm:inline">Test AMD Connection</span>
-            <span className="sm:hidden">Test</span>
-          </button>
-
-          {/* AMD Hardware Badge */}
           <div
             onClick={onOpenTestModal}
-            className="cursor-pointer flex items-center space-x-2 bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 hover:border-red-500/40 text-xs transition-colors"
+            className="cursor-pointer flex items-center space-x-2 bg-obsidian-950 px-3 py-1.5 rounded-xl border border-obsidian-750 hover:border-red-500/40 text-xs transition-colors shadow-sm"
+            title="Click to view AMD Token Factory connection diagnostics"
           >
             <div className="flex items-center space-x-1.5">
               <span className="relative flex h-2 w-2">
@@ -115,11 +64,10 @@ export default function Navbar({ amdStatus, activeTab, setActiveTab, onOpenTestM
               </span>
             </div>
             <span className="text-obsidian-600">|</span>
-            <span className="text-[11px] text-slate-300 font-mono hidden xl:inline">
+            <span className="text-[11px] text-slate-300 font-mono hidden sm:inline">
               {modelName}
             </span>
           </div>
-
         </div>
 
       </div>

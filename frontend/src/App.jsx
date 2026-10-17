@@ -141,9 +141,8 @@ export default function App() {
     <div className="min-h-screen bg-obsidian-950 flex flex-col text-slate-100">
       <Navbar
         amdStatus={amdStatus}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
         onOpenTestModal={() => setTestModalOpen(true)}
+        onBrandClick={() => setActiveTab('dashboard')}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
