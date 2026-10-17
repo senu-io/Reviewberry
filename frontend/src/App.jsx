@@ -9,10 +9,11 @@ import CustomerReplyModal from './components/CustomerReplyModal';
 import StaffMemoModal from './components/StaffMemoModal';
 import UploadModal from './components/UploadModal';
 import TestConnectionModal from './components/TestConnectionModal';
-import { Users, Cpu, ShieldCheck, Github, ExternalLink, Heart } from 'lucide-react';
+import ActionStudio from './components/ActionStudio';
+import { Users, Cpu, ShieldCheck, Github, ExternalLink, Heart, Sparkles } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'kanban'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'kanban', or 'studio'
   const [activeDemoId, setActiveDemoId] = useState('trattoria');
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -215,24 +216,43 @@ export default function App() {
                     >
                       Staff Action Board ({analysisData.tasks?.length})
                     </button>
+                    <button
+                      onClick={() => setActiveTab('studio')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                        activeTab === 'studio'
+                          ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                          : 'bg-obsidian-900 text-slate-400 hover:text-white border border-obsidian-750'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-berry-400" />
+                      <span>Resolution Studio</span>
+                    </button>
                   </div>
                 </div>
 
                 <OverviewMetrics data={analysisData} />
 
                 {/* Main Views */}
-                {activeTab === 'dashboard' ? (
+                {activeTab === 'dashboard' && (
                   <ClusterList
                     clusters={analysisData.clusters}
                     onOpenCustomerReply={handleOpenCustomerReply}
                     onOpenStaffMemo={handleOpenStaffMemo}
                     onSelectTaskForCluster={handleJumpToTask}
                   />
-                ) : (
+                )}
+                {activeTab === 'kanban' && (
                   <TaskKanban
                     tasks={analysisData.tasks}
                     onUpdateTaskStatus={handleUpdateTaskStatus}
                     onOpenStaffMemoForTask={handleOpenStaffMemoForTask}
+                  />
+                )}
+                {activeTab === 'studio' && (
+                  <ActionStudio
+                    analysisData={analysisData}
+                    onOpenCustomerReply={handleOpenCustomerReply}
+                    onOpenStaffMemo={handleOpenStaffMemo}
                   />
                 )}
 
@@ -285,7 +305,7 @@ export default function App() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-[11px] text-slate-500">
             <div className="flex items-center space-x-2">
               <span className="font-bold text-slate-300">Reviewberry</span>
-              <span>—</span>
+              <span className="text-slate-600">:</span>
               <span>Customer complaints become business tasks</span>
             </div>
             <div>

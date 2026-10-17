@@ -71,6 +71,18 @@ export default function Navbar({ amdStatus, activeTab, setActiveTab, onOpenTestM
             <CheckSquare className="w-3.5 h-3.5" />
             <span>Staff Action Board</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('studio')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
+              activeTab === 'studio'
+                ? 'bg-gradient-to-r from-berry-600 to-berry-500 text-white shadow-glow-berry'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/60'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Resolution Studio</span>
+          </button>
         </div>
 
         {/* Right: AMD Status & Live Connection Tester */}
