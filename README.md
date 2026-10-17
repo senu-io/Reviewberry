@@ -166,23 +166,6 @@ Open **<http://localhost:3000>** in your browser. API requests proxy to port 800
 
 ---
 
-## Configuration and Environment Variables
-
-Reviewberry uses the AMD Token Factory API key configured in `.env`:
-
-```env
-RADEON_API_KEY=rc-865fcca81bbe7aa3914e89a3a3c40c53d8adc246ac4703c2
-RADEON_BASE_URL=https://developer.amd.com.cn/radeon/api/v1
-AMD_MODEL=DeepSeek-V4-Flash
-PORT=8000
-HOST=0.0.0.0
-USE_MOCK_FALLBACK=true
-```
-
-Note on resilience: `USE_MOCK_FALLBACK=true` ensures that if venue Wi-Fi drops or rate limits occur during an evaluation, Reviewberry continues to function without interruption.
-
----
-
 ## Team and Attribution
 
 Built for the **AMD Developer Hackathon: ACT III** in Rome, Italy:
