@@ -177,7 +177,11 @@ Reviewberry/
 │
 ├── sample_data/                      # Ready-to-use CSV files for evaluation
 │   ├── luigis_trattoria_rome_reviews.csv
-│   └── urbanvibe_retail_milan_reviews.csv
+│   ├── urbanvibe_retail_milan_reviews.csv
+│   ├── roma_artisan_coffee_and_gelato_reviews.csv
+│   ├── apex_gadgets_ecommerce_reviews.csv
+│   ├── palazzo_boutique_hotel_and_spa_reviews.csv
+│   └── metro_express_grocery_reviews.csv
 │
 └── resources/                        # Source graphical assets, logos, and UI icons
 ```

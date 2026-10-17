@@ -70,7 +70,17 @@ Judges and mentors can evaluate Reviewberry instantly with zero setup:
 - **Trattoria Luigi and Delivery (Rome, Italy):** Identifies cold food transit failures, uninsulated courier bags, omitted cannoli/dipping sauces, and POS receipt address truncation in Trastevere.
 - **UrbanVibe Boutique (Milan, Italy):** Identifies linen shirts running 2 sizes smaller than EU sizing charts, self-checkout RFID tag alarms, and return refund backlogs.
 
-### 2. Live AMD Token Factory Diagnostics
+### 2. Custom CSV Upload and Ready-to-Test Industry Datasets
+
+Merchants can drag and drop any CSV feedback export or choose from pre-formatted evaluation CSV files located in `sample_data/`:
+- **Roma Artisan Coffee and Gelato Bar (`roma_artisan_coffee_and_gelato_reviews.csv`):** POS terminal freezes during commuter rush, melted gelato delivery, and non-dairy milk allergen mix-ups.
+- **Apex Tech Direct Electronics (`apex_gadgets_ecommerce_reviews.csv`):** Missing braided USB-C cables in sealed packages, confusing multi-device pairing guides, and mailer box crushing.
+- **Palazzo Navona Hotel and Spa (`palazzo_boutique_hotel_and_spa_reviews.csv`):** 3rd floor thermostat failures, breakfast machine queues, and booking portal reservation desync.
+- **Metro Express Rapid Grocery (`metro_express_grocery_reviews.csv`):** Bruised produce under heavy items, unapproved dairy substitutions, and missing cold packs.
+- **Trattoria Luigi and Delivery (`luigis_trattoria_rome_reviews.csv`):** Cold pasta transit delays, omitted side orders, and Trastevere address truncation.
+- **UrbanVibe Boutique (`urbanvibe_retail_milan_reviews.csv`):** Size chart discrepancies, self-checkout RFID tag alarms, and refund processing backlogs.
+
+### 3. Live AMD Token Factory Diagnostics
 
 Click "Test AMD Connection" in the top navigation bar to execute a real-time probe to the AMD Radeon Cloud cluster, benchmark latency, and inspect active rate limits.
 
