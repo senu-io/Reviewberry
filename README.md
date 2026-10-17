@@ -5,34 +5,20 @@
 > **Team:** Voyagers  
 > **Team Members:** Nguyen Xuan Hau and Senuke Weragama  
 > **Powered by:** AMD Token Factory (AMD Radeon Cloud AI Endpoints)  
-> **Repository:** https://github.com/senu-io/Reviewberry  
+> **Repository:** <https://github.com/senu-io/Reviewberry>  
 
 ---
 
-## Executive Summary
+## Project Summary
 
 Retailers, restaurants, and e-commerce merchants are inundated with customer feedback across Google Maps, Yelp, Deliveroo, Just Eat, Trustpilot, and direct support tickets. Today, businesses face an operational dilemma:
+
 1. **Unstructured text is ignored**, and management only monitors a crude star rating.
 2. **Traditional sentiment dashboards** report passive statistics like "68% negative sentiment", leaving store managers asking: **"What do my staff actually need to do?"**
 
 Reviewberry bridges the gap between raw customer sentiment and frontline operational execution. Powered by AMD Token Factory on AMD Radeon Cloud GPUs, Reviewberry groups differently phrased complaints into root-cause clusters, extracts verbatim quotes as evidence, and automatically generates concrete, assignable business tasks complete with Standard Operating Procedure (SOP) action checklists, department assignees, and public recovery replies.
 
 For complete technical specifications, architectural rationales, schema definitions, and design trade-offs, please refer to the dedicated [DOCUMENTATION.md](file:///d:/Other/Projects/LabLab.AI/AMD_ACT_III/Reviewberry/DOCUMENTATION.md).
-
----
-
-## Hackathon Track Alignment: Reinvent Commerce
-
-Track 3 challenges teams to turn customer or business data into a useful recommendation or action that helps attract, serve, convert, or retain customers.
-
-| Track 3 Requirement | Reviewberry Implementation |
-| :--- | :--- |
-| **Real Problem** | Unstructured review data is disconnected from frontline staff actions, resulting in repeated operational mistakes and customer churn. |
-| **Working Product** | Full-stack cloud-native web application with 1-click evaluation datasets, custom CSV ingestion, Kanban task management, and SOP memo generator. |
-| **Actionable Output** | Converts vague complaints ("food was cold", "driver took 1 hour") into operational SOP tasks ("Mandate Thermal Bags and Audit Courier Handoff Times" assigned to the Head Chef and Dispatch Supervisor). |
-| **Customer Retention** | Includes an AI Customer Recovery Copilot that drafts public review replies citing the exact operational corrective actions implemented. |
-
----
 
 ## AMD Radeon Cloud and Token Factory Integration
 
@@ -78,28 +64,37 @@ flowchart TD
 ## Key Functional Capabilities
 
 ### 1. 1-Click Interactive Demos for Evaluation
+
 Judges and mentors can evaluate Reviewberry instantly with zero setup:
+
 - **Trattoria Luigi and Delivery (Rome, Italy):** Identifies cold food transit failures, uninsulated courier bags, omitted cannoli/dipping sauces, and POS receipt address truncation in Trastevere.
 - **UrbanVibe Boutique (Milan, Italy):** Identifies linen shirts running 2 sizes smaller than EU sizing charts, self-checkout RFID tag alarms, and return refund backlogs.
 
 ### 2. Live AMD Token Factory Diagnostics
+
 Click "Test AMD Connection" in the top navigation bar to execute a real-time probe to the AMD Radeon Cloud cluster, benchmark latency, and inspect active rate limits.
 
 ### 3. Semantic Root-Cause Clustering
+
 Instead of counting keywords, Reviewberry connects differently phrased complaints:
+
 - "Rigatoni carbonara was ice cold" + "Courier had no thermal bag" + "Driver waited 25 mins at the kitchen" -> **Cluster: Cold Delivery Transit and Thermal Bag Deficit**.
 
 ### 4. Verbatim Customer Evidence
+
 Displays exact quotes, reviewer names, channels (Deliveroo, Google Maps, Yelp), and sentiment scores so managers can review the primary source evidence.
 
 ### 5. Frontline Staff Action Board (Kanban)
+
 Moves complaints into actionable staff deliverables:
+
 - **Department and Role:** Kitchen Operations and Dispatch -> Head Chef.
 - **Priority and Target Time:** P1 - Urgent -> 24 hours.
 - **Interactive Action Checklist:** Step-by-step instructions that team members can check off.
 - **Expected Business Outcome:** Quantifies impact (such as "Eliminate lukewarm food delivery complaints by 85%").
 
 ### 6. Closed-Loop Customer Recovery and Staff Briefing
+
 - **Public Review Reply Generator:** Generates an empathetic response addressing the reviewer by name and explicitly citing the operational upgrade implemented.
 - **Internal SOP Briefing Memo:** Generates a formatted briefing memo ready for management to distribute to staff.
 
@@ -119,11 +114,13 @@ For an exhaustive explanation of why each technology was chosen, refer to [DOCUM
 ## Quickstart and Installation Guide
 
 ### Prerequisites
+
 - Python 3.10 or higher
 - Node.js 18 or higher (optional, for frontend development)
 - Docker and Docker Compose (optional, for containerized run)
 
 ### Option 1: Unified Full-Stack Run (Fastest)
+
 The production React frontend is pre-compiled into `frontend/dist/`. FastAPI serves the API and the user interface from a single port:
 
 ```powershell
@@ -133,11 +130,13 @@ The production React frontend is pre-compiled into `frontend/dist/`. FastAPI ser
 # 2. Start server
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend
 ```
-Access the application at: **http://localhost:8000**
+
+Access the application at: **<http://localhost:8000>**
 
 ---
 
 ### Option 2: Run with Docker
+
 ```bash
 # Clone the repository
 git clone https://github.com/senu-io/Reviewberry.git
@@ -146,11 +145,13 @@ cd Reviewberry
 # Build and start container
 docker-compose up --build
 ```
-Access the application at: **http://localhost:8000**
+
+Access the application at: **<http://localhost:8000>**
 
 ---
 
 ### Option 3: Local Development with Hot Reloading
+
 ```powershell
 # Terminal 1: Backend
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend --reload
@@ -160,7 +161,8 @@ cd frontend
 npm install
 npm run dev
 ```
-Open **http://localhost:3000** in your browser. API requests proxy to port 8000.
+
+Open **<http://localhost:3000>** in your browser. API requests proxy to port 8000.
 
 ---
 
@@ -210,6 +212,3 @@ Built for the **AMD Developer Hackathon: ACT III** in Rome, Italy:
    "Reviewberry reinvents commerce by converting customer friction into accountability, operational excellence, and retained revenue, all powered by AMD Radeon Cloud."
 
 ---
-
-## License
-MIT License. Built by Team Voyagers at the AMD ACT III Hackathon in Rome, Italy.
