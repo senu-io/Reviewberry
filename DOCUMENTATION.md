@@ -6,11 +6,12 @@
 > **Team:** Voyagers  
 > **Team Members:** Nguyen Xuan Hau and Senuke Weragama  
 > **Hardware / Cloud Infrastructure:** AMD Radeon Cloud (Token Factory)  
-> **Repository:** https://github.com/senu-io/Reviewberry  
+> **Repository:** <https://github.com/senu-io/Reviewberry>  
 
 ---
 
 ## Table of Contents
+
 1. [Executive Overview and Vision](#1-executive-overview-and-vision)
 2. [Technology Stack, Languages and Tools](#2-technology-stack-languages-and-tools)
    - 2.1 [Programming Languages](#21-programming-languages)
@@ -48,6 +49,7 @@
 In contemporary commerce (retail shops, e-commerce boutiques, and restaurant delivery operations), customer feedback is highly distributed across Google Maps, Yelp, Deliveroo, Just Eat, TripAdvisor, Trustpilot, and direct support tickets.
 
 When businesses attempt to monitor this customer feedback, they encounter a critical operational breakdown:
+
 1. **Unstructured Text is Ignored:** Business owners and store managers often only glance at crude numerical star ratings (such as 3.4 stars), without understanding the root operational cause.
 2. **Sentiment Dashboards Do Not Solve Problems:** Existing business intelligence software typically outputs passive charts (such as 68% negative sentiment regarding delivery). The store manager looks at the graph and is left asking: **"Okay, but what do my employees actually need to do about it?"**
 
@@ -80,10 +82,12 @@ Reviewberry was built from the ground up using modern, type-safe, cloud-native t
 ```
 
 ### 2.1 Programming Languages
+
 - **Python (v3.11+ / v3.15 compatible):** Powers the entire backend service, asynchronous I/O orchestration, prompt formatting, Pydantic data validation, and AMD API communications.
 - **JavaScript (ES2022+ / JSX):** Powers the modern single-page frontend application, state management, interactive Kanban board drag/state transitions, and client-side telemetry rendering.
 
 ### 2.2 Backend Architecture Stack
+
 - **FastAPI (v0.143+):** High-performance asynchronous Python web framework providing typed REST endpoints, native ASGI concurrency via Starlette, and automated OpenAPI documentation (`/docs`).
 - **Uvicorn (v0.54+):** Fast ASGI web server implementation used to run the FastAPI application in production and development.
 - **Pydantic (v2.14+):** Strict data modeling and runtime validation library guaranteeing that unstructured LLM outputs match deterministic schema definitions.
@@ -92,12 +96,14 @@ Reviewberry was built from the ground up using modern, type-safe, cloud-native t
 - **Python-Dotenv (v1.2+):** Secure environment configuration loader ensuring separation of credentials from application code.
 
 ### 2.3 Frontend Architecture Stack
+
 - **React (v18.3 / v19 ready):** Declarative, component-driven UI library handling complex state (Kanban board stages, interactive checklists, modal popups, and real-time telemetry).
 - **Vite (v5.4+):** Modern frontend build tool providing sub-second Hot Module Replacement (HMR) during development and tree-shaken, minified static distribution bundles (`/dist`).
 - **Tailwind CSS (v3.4+):** Utility-first styling engine configured with a custom design system ("Midnight Obsidian and Cyber-Berry") featuring glassmorphism, radial glow effects, and responsive breakpoints.
 - **Lucide React (v0.363+):** Clean, lightweight, consistent SVG iconography for operational statuses, priority tags, hardware telemetry, and checklist interactions.
 
 ### 2.4 AMD AI Cloud Infrastructure and Token Factory
+
 - **Provider:** AMD Radeon Cloud / AMD AI Developer Program.
 - **Endpoint Protocol:** OpenAI-compatible Chat Completions API (`POST /v1/chat/completions`) and model listings (`GET /v1/models`).
 - **Gateway Base URL:** `https://developer.amd.com.cn/radeon/api/v1`.
@@ -110,6 +116,7 @@ Reviewberry was built from the ground up using modern, type-safe, cloud-native t
   - Upstream GPU inference latency in milliseconds.
 
 ### 2.5 DevOps, Containerization and Tooling
+
 - **Docker:** Multi-stage `Dockerfile` that compiles the React application using Node 22 Alpine, copies the static bundle into a lightweight Python 3.11 slim image, and runs the entire full-stack app on a single exposed port (8000).
 - **Docker Compose:** Container orchestration specification allowing one-command deployment (`docker-compose up --build`) on any cloud VM or local workstation.
 - **Git and GitHub:** Version control with automated `.gitignore` protecting secrets while tracking all source files, unit tests, and documentation.
@@ -180,7 +187,9 @@ Reviewberry/
 ### 3.2 Backend Component Breakdown
 
 #### client_amd.py: The AMD Radeon Cloud Gateway
+
 Acts as the communication pipeline between Reviewberry and the AMD Token Factory API.
+
 - **Authentication:** Injects `Authorization: Bearer rc-...` header into outgoing calls.
 - **Model Dynamic Routing:** Defaults to `DeepSeek-V4-Flash` but supports runtime switching to `Qwen3.8-Flash-Next` or `GLM-5.3-Flash`.
 - **JSON Enforcement:** Passes `response_format: {"type": "json_object"}` to guarantee that AMD-hosted models return machine-readable JSON.
@@ -189,12 +198,16 @@ Acts as the communication pipeline between Reviewberry and the AMD Token Factory
 - **Connection Benchmark (`test_live_connection`):** Sends a probe payload to AMD Token Factory, timing the round-trip latency and verifying token generation without affecting production analysis state.
 
 #### engine.py: The Reviewberry Intelligence Layer
+
 Transforms raw review strings into structured business operations.
+
 - **Prompt Engineering:** Uses a system prompt that primes the LLM as an expert retail and restaurant operations consultant. It instructs the model to group complaints by **root cause**, isolate exact **verbatim quotes**, determine **severity**, and formulate **assigned tasks** with actionable checklists.
 - **Intelligent Fallback Architecture:** If the user has not yet provisioned an API key or if the conference venue loses internet connectivity, the engine uses a semantic heuristic algorithm that clusters the reviews and extracts real quotes, ensuring zero demo downtime.
 
 #### schemas.py: Strict Type Contracts
+
 Defines the schema structures using Pydantic:
+
 - `ReviewItem`: Individual customer feedback with ID, text, author, rating, source, and date.
 - `SupportingQuote`: Verbatim evidence snippet, review ID, platform channel, and sentiment score.
 - `IssueCluster`: Root cause group with severity, frequency, churn risk, affected channels, and supporting quotes.
@@ -256,7 +269,9 @@ The end-to-end data lifecycle of Reviewberry converts unstructured feedback into
 ```
 
 ### Stage 1: Multi-Channel Data Ingestion and Normalization
+
 The merchant imports reviews into Reviewberry via three pathways:
+
 1. **1-Click Pre-Loaded Scenarios:** Built-in commercial datasets for instant evaluation (Trattoria Luigi and Delivery in Rome or UrbanVibe Boutique in Milan).
 2. **CSV File Drag-and-Drop:** Merchants upload exported review files from Google Maps, Deliveroo, Yelp, or Trustpilot. The backend parser dynamically identifies columns (`text`, `review`, `comment`, `author`, `stars`, `channel`).
 3. **Direct Text Paste:** Merchants can paste raw customer feedback or support tickets line by line.
@@ -264,7 +279,9 @@ The merchant imports reviews into Reviewberry via three pathways:
 All incoming records are normalized into a standardized `ReviewItem` structure with assigned identifiers.
 
 ### Stage 2: AMD Zero-Shot Semantic Clustering
+
 Reviewberry sends the batch of reviews to AMD Token Factory (DeepSeek-V4-Flash on AMD Radeon Cloud GPUs). Instead of performing naive keyword matching (such as searching for the word "cold"), the model executes semantic root-cause clustering:
+
 - Review A: *"Rigatoni was ice cold when it arrived."*
 - Review B: *"Cheese on the pizza congealed completely, driver had no thermal bag."*
 - Review C: *"Lukewarm pasta, courier waited 25 minutes at the kitchen."*
@@ -272,14 +289,18 @@ Reviewberry sends the batch of reviews to AMD Token Factory (DeepSeek-V4-Flash o
 The model identifies that these differently phrased complaints originate from the same operational breakdown: **Cold Delivery Transit and Thermal Bag Deficit**.
 
 ### Stage 3: Verbatim Evidence Isolation and Churn Risk Weighting
+
 For each identified cluster, Reviewberry:
+
 - Extracts exact **verbatim quotes** so management can inspect the unedited voice of the customer.
 - Records the author, review rating, and source channel (such as Deliveroo versus Google Maps).
 - Computes cluster frequency and percentage of total negative feedback.
 - Determines an **Estimated Churn Risk** (Critical, High, Medium, Low) based on sentiment severity and customer defection probability.
 
 ### Stage 4: Automated Staff Task Synthesis and SOP Checklist Generation
+
 Here lies Reviewberry's primary commercial innovation: the AI translates the cluster directly into an operational directive:
+
 - **Department and Assignee Role:** Assigns ownership to specific roles (for example, Kitchen Operations / Dispatch assigned to Head Chef and Dispatch Supervisor).
 - **Urgency Priority:** Tags the task as P1 - Urgent, P2 - High, P3 - Medium, or P4 - Low.
 - **Target Resolution Timeline:** Specifies an operational deadline (for example, 24 hours).
@@ -287,17 +308,22 @@ Here lies Reviewberry's primary commercial innovation: the AI translates the clu
 - **Expected Business Outcome:** Quantifies the target financial and service recovery metric (for example: Eliminate lukewarm food delivery complaints by 85% and prevent order refund deductions).
 
 ### Stage 5: Frontline Action Execution (Kanban Resolution Board)
+
 The generated tasks populate an interactive 3-column Kanban board:
+
 1. **Proposed Tasks:** New tasks synthesized from recent reviews awaiting management approval.
 2. **In Progress:** Tasks assigned to specific staff members with active checklists. Staff can interactively tick off checklist items as they complete them.
 3. **Resolved:** Tasks marked as closed once all operational safeguards are implemented.
 
 ### Stage 6: Closed-Loop Customer Recovery and Staff SOP Briefing
+
 Reviewberry provides two closed-loop resolution tools:
+
 - **Public Review Recovery Copilot:** Generates an empathetic public review reply for Google Maps or Deliveroo that specifically cites the operational improvement made (for example: *"We sincerely apologize for your cold pasta, Marco. We have immediately replaced our courier thermal bags and instituted a 4-minute dispatch rule..."*).
 - **Internal Staff SOP Briefing Memo:** Synthesizes a formal Standard Operating Procedure memo ready for the store manager to print or paste into internal communication channels (Slack, WhatsApp, shift handoff sheets).
 
 ### Stage 7: Live AMD Diagnostics and Latency Benchmarking
+
 A dedicated diagnostics suite accessible via the navigation bar allows merchants and judges to ping the AMD Token Factory cluster, benchmark inference roundtrip latency in milliseconds, track RPM rate limits, and inspect token consumption.
 
 ---
@@ -305,25 +331,30 @@ A dedicated diagnostics suite accessible via the navigation bar allows merchants
 ## 5. Key Design Choices, Architectural Rationales and Trade-offs
 
 ### 5.1 Why Action Tasks Rather than another Sentiment Dashboard?
+
 - **The Problem:** Sentiment dashboards are passive. They report that a merchant has a problem, but they do not help the merchant solve it. Merchants suffer from "metric fatigue" where they see negative charts but lack the time or analytical capability to translate complaints into operational procedures.
 - **The Decision:** We deliberately scoped Reviewberry around the action workflow. Turning complaints into assignable tasks with checklists creates accountability for staff, measurable operational improvements, and tangible ROI.
 
 ### 5.2 Why DeepSeek-V4-Flash on AMD Token Factory?
+
 - **High Speed and Low Latency:** DeepSeek-V4-Flash running on AMD Radeon Cloud GPUs delivers high inference throughput, returning complex multi-cluster operational JSON schemas in seconds.
 - **1,048,576 Token Context Window:** Retailers often need to ingest hundreds of customer reviews simultaneously. A 1M context window allows Reviewberry to process complete historical review catalogs in a single inference call without chunking or losing cross-review semantic context.
 - **Strict JSON Compliance:** DeepSeek-V4-Flash reliably respects `response_format: {"type": "json_object"}`, ensuring reliable integration with our Pydantic backend models.
 
 ### 5.3 Why a Unified Single-Container Delivery (FastAPI + Pre-Built React)?
+
 - **Hackathon Reliability:** Running frontend and backend on different ports or separate containers often causes CORS misconfigurations, proxy failures, or routing issues during judging.
 - **Architecture Choice:** We configured Vite to build static distribution assets into `frontend/dist/`. FastAPI serves API endpoints on `/api/*` and mounts `frontend/dist/` at the root `/`.
 - **Outcome:** The entire full-stack application runs on a single port (8000) inside a single lightweight Docker container, eliminating deployment friction.
 
 ### 5.4 Why Hybrid Live Inference with Intelligent Fallback Resilience?
+
 - **The Challenge:** In on-site hackathons, conference Wi-Fi networks can become congested, and shared API keys can occasionally encounter temporary 429 rate limits.
 - **The Design:** Reviewberry's backend connects directly to the live AMD Token Factory API using the provisioned `rc-...` key. However, if a network outage or hard limit occurs, the client automatically triggers an intelligent semantic fallback engine.
 - **Benefit:** Judges will never see an unhandled error or a crashed screen. The demo runs reliably in any environment.
 
 ### 5.5 Why Bespoke Midnight Obsidian and Cyber-Berry UI/UX Design?
+
 - **Visual Distinction:** Many hackathon submissions use default CSS frameworks with light backgrounds or generic dark slate cards that look identical.
 - **Brand Identity:** Reviewberry uses a custom palette: deep obsidian backgrounds (`#07050A`), electric cyber-berry highlights (`#FF1E70`), AMD ruby accents (`#ED1C24`), and neon cyan badges (`#00F5D4`). This aesthetic communicates modern software craft and emphasizes the AMD Radeon Cloud acceleration.
 
