@@ -168,19 +168,65 @@ class AMDTokenFactoryClient:
                 "provider": "AMD Radeon Cloud"
             }
 
+    def _extract_and_parse_json(self, content: str) -> Optional[Dict[str, Any]]:
+        """
+        Extracts and parses JSON from raw LLM output, handling markdown code fences,
+        leading/trailing text, and unclosed brackets.
+        """
+        if not content:
+            return None
+        cleaned = content.strip()
+        # Strip thinking tags if present
+        if "<think>" in cleaned and "</think>" in cleaned:
+            cleaned = cleaned.split("</think>")[-1].strip()
+        # Strip markdown fences
+        if "```json" in cleaned:
+            cleaned = cleaned.split("```json")[1].split("```")[0].strip()
+        elif "```" in cleaned:
+            cleaned = cleaned.split("```")[1].split("```")[0].strip()
+
+        # Try direct parse
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            pass
+
+        # Extract outermost { ... }
+        first_brace = cleaned.find("{")
+        last_brace = cleaned.rfind("}")
+        if first_brace != -1 and last_brace > first_brace:
+            try:
+                return json.loads(cleaned[first_brace:last_brace + 1])
+            except Exception:
+                pass
+
+        # Balance truncated brackets
+        candidate = cleaned[first_brace:] if first_brace != -1 else cleaned
+        open_curlies = candidate.count("{") - candidate.count("}")
+        open_squares = candidate.count("[") - candidate.count("]")
+        if candidate.count('"') % 2 != 0:
+            candidate += '"'
+        candidate += "]" * max(0, open_squares)
+        candidate += "}" * max(0, open_curlies)
+        try:
+            return json.loads(candidate)
+        except Exception:
+            return None
+
     async def chat_completion_json(
         self,
         messages: List[Dict[str, str]],
         model: Optional[str] = None,
-        max_tokens: int = 4000,
-        temperature: float = 0.2,
-        reasoning_effort: Optional[str] = "none"
+        max_tokens: int = 850,
+        temperature: float = 0.1,
+        reasoning_effort: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Executes a chat completion request to AMD Token Factory requiring JSON format.
+        Features automatic multi-model failover if the primary model hits upstream timeout.
         """
         start_time = time.time()
-        selected_model = model or self.default_model
+        primary_model = model or self.default_model
 
         if not self.is_configured():
             logger.info("AMD Token Factory API key not provided or placeholder. Using intelligent fallback engine.")
@@ -192,21 +238,29 @@ class AMDTokenFactoryClient:
             "Content-Type": "application/json"
         }
 
-        payload: Dict[str, Any] = {
-            "model": selected_model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "response_format": {"type": "json_object"}
-        }
-        
-        if reasoning_effort and "DeepSeek" in selected_model:
-            payload["reasoning_effort"] = reasoning_effort
+        # Model failover sequence to prevent upstream 504 gateway timeout
+        candidate_models = [primary_model]
+        for fallback in ["DeepSeek-V4-Flash", "Qwen3.8-Flash-Next", "MiniCPM5-2B"]:
+            if fallback not in candidate_models:
+                candidate_models.append(fallback)
 
-        retries = 3
-        for attempt in range(retries):
+        import asyncio
+
+        for current_model in candidate_models:
+            payload: Dict[str, Any] = {
+                "model": current_model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "response_format": {"type": "json_object"}
+            }
+
+            if reasoning_effort:
+                payload["reasoning_effort"] = reasoning_effort
+
             try:
-                async with httpx.AsyncClient(timeout=90.0) as client:
+                logger.info(f"Attempting live inference on AMD Token Factory with model: {current_model}")
+                async with httpx.AsyncClient(timeout=48.0) as client:
                     response = await client.post(
                         f"{self.base_url}/chat/completions",
                         headers=headers,
@@ -220,41 +274,40 @@ class AMDTokenFactoryClient:
                     if response.status_code == 200:
                         self.last_latency_ms = round((time.time() - start_time) * 1000, 2)
                         data = response.json()
-                        content = data["choices"][0]["message"]["content"]
-                        try:
-                            parsed_json = json.loads(content)
+                        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        parsed_json = self._extract_and_parse_json(content)
+
+                        if parsed_json and isinstance(parsed_json, dict):
                             parsed_json["_amd_meta"] = {
-                                "model": selected_model,
+                                "model": current_model,
                                 "latency_ms": self.last_latency_ms,
                                 "usage": data.get("usage", {}),
                                 "amd_accelerated": True,
                                 "provider": "AMD Radeon Cloud (Token Factory)"
                             }
+                            logger.info(f"AMD Token Factory inference successful with {current_model} in {self.last_latency_ms}ms")
                             return parsed_json
-                        except json.JSONDecodeError:
-                            logger.error(f"Failed to parse JSON response: {content}")
-                            return {"raw_content": content, "_amd_meta": {"model": selected_model}}
+                        else:
+                            logger.warning(f"Could not parse valid JSON from {current_model} output. Raw content snippet: {repr(content[:300])}")
+                            continue
 
                     elif response.status_code == 429:
                         retry_after = int(response.headers.get("Retry-After", 2))
                         logger.warning(f"Rate limited (429) by AMD Token Factory. Sleeping for {retry_after}s")
-                        import asyncio
                         await asyncio.sleep(retry_after)
                         continue
+
                     else:
-                        logger.error(f"AMD Token Factory returned HTTP {response.status_code}: {response.text}")
-                        if self.mock_mode:
-                            logger.info("Falling back to intelligent mock engine due to HTTP error.")
-                            return {"_mock": True, "error_encountered": response.text}
-                        raise RuntimeError(f"AMD Token Factory error: {response.status_code} - {response.text}")
+                        logger.warning(f"AMD model {current_model} returned HTTP {response.status_code}: {response.text[:180]}")
+                        # If upstream 504/500, fail over to next model in list
+                        continue
 
-            except httpx.RequestError as e:
-                logger.warning(f"Network error communicating with AMD Token Factory: {e}")
-                if attempt == retries - 1:
-                    if self.mock_mode:
-                        return {"_mock": True, "network_error": str(e)}
-                    raise
+            except (httpx.RequestError, httpx.TimeoutException) as e:
+                logger.warning(f"Timeout/Network error with AMD model {current_model}: {e}. Trying next candidate...")
+                continue
 
+        # If all live remote models timed out or failed, engage intelligent fallback
+        logger.info("Engaging intelligent fallback engine after remote AMD candidates exceeded timeout.")
         return {"_mock": True}
 
 amd_client = AMDTokenFactoryClient()

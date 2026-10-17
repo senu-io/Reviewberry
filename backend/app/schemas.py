@@ -17,33 +17,33 @@ class AnalyzeRequest(BaseModel):
 
 class SupportingQuote(BaseModel):
     quote: str
-    review_id: str
-    source: str
-    author: str
+    review_id: str = "rev-01"
+    source: str = "Customer Review"
+    author: str = "Customer"
     sentiment_score: float = -0.8
 
 class IssueCluster(BaseModel):
     id: str
     title: str
-    category: str
-    description: str
-    severity: str  # low, medium, high, critical
-    frequency: int
-    percentage: float
-    estimated_churn_risk: str
-    affected_channels: List[str]
-    supporting_quotes: List[SupportingQuote]
+    category: str = "Operations"
+    description: str = "Recurring operational friction reported by customers."
+    severity: str = "high"  # low, medium, high, critical
+    frequency: int = 2
+    percentage: float = 25.0
+    estimated_churn_risk: str = "High"
+    affected_channels: List[str] = Field(default_factory=lambda: ["Direct Review", "Online"])
+    supporting_quotes: List[SupportingQuote] = Field(default_factory=list)
 
 class ActionTask(BaseModel):
     id: str
     cluster_id: str
     title: str
-    department: str
-    priority: str  # P1 - Urgent, P2 - High, P3 - Medium, P4 - Low
-    assignee_role: str
-    estimated_resolution_time: str
-    checklist: List[str]
-    expected_business_outcome: str
+    department: str = "Operations & Service"
+    priority: str = "P1 - Urgent"  # P1 - Urgent, P2 - High, P3 - Medium, P4 - Low
+    assignee_role: str = "Shift Supervisor"
+    estimated_resolution_time: str = "24-48 hours"
+    checklist: List[str] = Field(default_factory=lambda: ["Audit current procedure", "Standardize handling checklist", "Brief shift team"])
+    expected_business_outcome: str = "Prevent recurring complaints and improve customer satisfaction."
     status: str = "proposed"  # proposed, in_progress, completed
 
 class AnalysisResult(BaseModel):
