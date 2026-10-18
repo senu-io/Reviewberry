@@ -35,6 +35,8 @@ app.add_middleware(
 # In-memory store for active analysis results (for task state persistence during session)
 ACTIVE_SESSIONS: Dict[str, AnalysisResult] = {}
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/health")
 async def health_check():
     return {
